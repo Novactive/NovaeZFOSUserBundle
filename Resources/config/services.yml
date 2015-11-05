@@ -1,0 +1,46 @@
+parameters:
+    ezpublish.security.login_listener.class: Novactive\Bundle\eZFOSUserBundle\Listener\SecurityListener
+
+services:
+
+    # MANAGERS
+    novactive.ezfosuser.fos_user_manager:
+        class: Novactive\Bundle\eZFOSUserBundle\Doctrine\UserManager
+        parent: fos_user.user_manager.default
+
+    novactive.ezfosuser.user_provider.username_email:
+        class: Novactive\Bundle\eZFOSUserBundle\Security\UserProvider
+        arguments: [ @fos_user.user_manager ]
+
+    # LISTENERS
+    novactive.ezfosuser.interactive_event_listener:
+        class: Novactive\Bundle\eZFOSUserBundle\Listener\InteractiveLoginListener
+        arguments: [@ezpublish.api.service.user]
+        tags:
+            - { name: kernel.event_subscriber }
+
+    novactive.ezfosuser.implicit_event_listener:
+        class: Novactive\Bundle\eZFOSUserBundle\Listener\ImplicitLoginListener
+        arguments:
+            - @ezpublish.api.repository
+            - @ezpublish.config.resolver
+            - @event_dispatcher
+            - @security.token_storage
+        tags:
+            - { name: kernel.event_subscriber }
+
+    # FORMS
+    novactive.ezfosuser.novactive_ezfosuser_registration.form.type:
+        class: Novactive\Bundle\eZFOSUserBundle\Form\Type\Registration
+        tags:
+            - { name: form.type, alias: novactive_ezfosuser_registration}
+
+    novactive.ezfosuser.novactive_ezfosuser_profile.form.type:
+        class: Novactive\Bundle\eZFOSUserBundle\Form\Type\Profile
+        tags:
+            - { name: form.type, alias: novactive_ezfosuser_profile}
+
+    novactive.ezfosuser.novactive_ezfosuser_change_password.form.type:
+        class: Novactive\Bundle\eZFOSUserBundle\Form\Type\ChangePassword
+        tags:
+            - { name: form.type, alias: novactive_ezfosuser_change_password}
